@@ -7,6 +7,6 @@
  */
 
 ?>
-<form action="CheckSamePage.php" method="post">
+<form action="checkSamePage.php" method="post">
     <input type="submit">
 </form>
