@@ -14,7 +14,8 @@
             $error = true;
         }
 
-        $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_NUMBER_FLOAT, array("options" => array("min_range"=>$minPrice, "max_range"=>$maxPrice)));
+        $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_NUMBER_FLOAT,
+            array("options" => array("min_range"=>$minPrice, "max_range"=>$maxPrice)));
         if($price === false) {
             $errorPrice = "No valid Price between $minPrice and $maxPrice";
             $error = true;
@@ -52,7 +53,7 @@
     <br/>
 
     <label>Description</label>  <input type="text" name="description" value="<?= $description ?>">
-    <? if(isset($errorDescription)) { ?>
+    <? if(!empty($errorDescription)) { ?>
         <span class="error"><?= $errorDescription ?></span>
     <? } ?>
     <br/>

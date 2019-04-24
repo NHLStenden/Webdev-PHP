@@ -18,22 +18,24 @@
 
 <form method="post">
     <button name="add">Add</button>
-    <button name="delete">Delete</button>
+    <button name="delete" value="test">Delete</button>
 </form>
 
 <form method="post">
-    <input type="submit" name="add" value="Add">
-    <input type="submit" name="delete" value="Delete">
+    <input type="submit" name="add" value="Add!">
+    <input type="submit" name="delete" value="Delete!">
 </form>
 
 <!-- multiple forms -->
 <form method="post">
+
     <input type="hidden" name="operation" value="add">
     <button type="submit">Add</button>
 </form>
 
 
 <form method="post">
+    <input type="hidden" name="productId" value="1">
     <input type="hidden" name="operation" value="delete">
     <button type="submit">Delete</button>
 </form>
