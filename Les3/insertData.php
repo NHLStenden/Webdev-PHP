@@ -1,5 +1,5 @@
 <?php
-
+//insertData.php
 $description = $_POST["description"] ?? false;
 
 if($description !== false) {
@@ -23,6 +23,10 @@ if($description !== false) {
         echo "Inserted Record";
     } catch (PDOException $ex) {
         echo "Connection failed:  $ex";
+    } finally {
+        if(isset($conn)) {
+            $conn = null;
+        }
     }
 }
 

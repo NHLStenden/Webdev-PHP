@@ -1,5 +1,5 @@
 <?php
-//sqlInjectionExample.php
+//sqlInjectionPreventExample.php
 
 function validate($str) {
     return trim(htmlspecialchars($str));
@@ -25,9 +25,10 @@ if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
 
         //Add the following string to the querystring searchDescription:    "' OR 1 = 1; --"
         //Or something like this: "'; DROP TABLE Todos; --"
-        $sql = "SELECT TodoId, Description, Done FROM Todos WHERE Description = '$searchDescription'";
+        $sql = "SELECT TodoId, Description, Done FROM Todos WHERE Description = :searchDescription";
 
         $stmt = $conn->prepare($sql);
+        $stmt->bindValue("searchDescription", $searchDescription, PDO::PARAM_STR);
         $stmt->execute();
 
         $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);

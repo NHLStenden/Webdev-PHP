@@ -1,4 +1,5 @@
 <?php
+//todoExample.php
 
 function validate($str) {
     return trim(htmlspecialchars($str));
@@ -10,9 +11,16 @@ $dns = "mysql:host=$host;dbname=$databaseName";
 $username = "root";     //for mamp
 $password = "root";     //for mamp
 
+//I had problems with $options to get it working
+//$options = [
+//    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+//    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,           //I think this is the default fetch mode?
+//    PDO::ATTR_EMULATE_PREPARES   => false,
+//];
 
 $rowToEdit = null;
 
+$conn = null;
 try {
     $conn = new PDO($dns, $username, $password);
 
@@ -34,7 +42,11 @@ try {
                     $stmtInsert->bindValue(":done", $done, PDO::PARAM_BOOL);
 
                     if ($stmtInsert->execute()) {
-                        echo "Todo Added Successful";
+                        if($stmtInsert->rowCount() == 1) {
+                            echo "Added Todo with id: {$conn->lastInsertId()}" ;
+                        } else {
+                            echo "Not Updated";
+                        }
                     } else {
                         echo "Error";
                     }
@@ -70,11 +82,12 @@ try {
 
                     $stmtEdit = $conn->prepare($sqlEdit);
                     $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
-                    //$stmtEdit->setFetchMode(PDO::FETCH_ASSOC);
+
+                    //$stmtEdit->setFetchMode(PDO::FETCH_ASSOC); ////not needed, set with $options, but enables you to change fetch mode from default specified
 
                     if ($stmtEdit->execute()) {
                         if($stmtEdit->rowCount() == 1) {
-                            $rowToEdit = $stmtEdit->fetch(PDO::FETCH_ASSOC);
+                            $rowToEdit = $stmtEdit->fetch(PDO::FETCH_ASSOC); //not needed parameter, set with $options, but enables you to change fetch mode from default (another way)
                         } else {
                             $rowToEdit = null;
                             echo "Record not found";
@@ -125,10 +138,9 @@ try {
 
             $stmtEdit = $conn->prepare($sqlEdit);
             $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
-            //$stmtEdit->setFetchMode(PDO::FETCH_ASSOC);
 
             if ($stmtEdit->execute()) {
-                $rowToEdit = $stmtEdit->fetch(PDO::FETCH_ASSOC);
+                $rowToEdit = $stmtEdit->fetch();
             } else {
                 echo "Error";
             }
@@ -142,7 +154,7 @@ try {
     $stmtSelect = $conn->prepare($sql);
     $stmtSelect->execute();
 
-    $result = $stmtSelect->setFetchMode(PDO::FETCH_ASSOC);
+    $result = $stmtSelect->setFetchMode();
 
     $rows = $stmtSelect->fetchAll();
 
@@ -156,6 +168,10 @@ try {
 } catch (PDOException $ex) {
     echo "Connection failed:  $ex";
     die();
+} finally {
+    if($conn != null) {
+        $conn = null;
+    }
 }
 ?>
 

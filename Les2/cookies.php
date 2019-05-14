@@ -12,7 +12,7 @@ if(!isset($_COOKIE["count"])) {
 $count++;
 
 if($count % 5 == 0) {
-    setcookie("count", $count, time() - $expires_time);
+    setcookie("count", $count, time() - 3600*24);
 } else {
     setcookie("count", $count, time() + $expires_time);
 }

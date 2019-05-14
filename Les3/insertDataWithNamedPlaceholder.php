@@ -1,5 +1,5 @@
 <?php
-
+//insertDataWithNamedPlaceholders.php
 function validate($str) {
     return trim(htmlspecialchars($str));
 }
@@ -17,7 +17,7 @@ if(!empty($_POST["description"]))
     $password = "root";     //for mamp
 
     //default username, password for wamp is root, empty/blank
-
+    $conn = null;
     try {
         $conn = new PDO($dns, $username, $password);
 
@@ -26,8 +26,8 @@ if(!empty($_POST["description"]))
         $sql = "INSERT INTO Todos (Description, Done) VALUES (:description, :done)";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bindParam("description", $description, PDO::PARAM_STR);
-        $stmt->bindParam("done", $done, PDO::PARAM_BOOL);
+        $stmt->bindValue("description", $description, PDO::PARAM_STR);
+        $stmt->bindValue("done", $done, PDO::PARAM_BOOL);
         $stmt->execute();
 
 //        $stmt->execute(array("description" => $description, "done" => $done));
@@ -38,6 +38,10 @@ if(!empty($_POST["description"]))
         echo "Inserted Record";
     } catch (PDOException $ex) {
         echo "Connection failed:  $ex";
+    } finally {
+        if($conn != null) {
+            $conn = null;
+        }
     }
 } else {
     echo "invalid input!";

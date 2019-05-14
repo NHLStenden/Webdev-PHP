@@ -7,10 +7,6 @@
         $_SESSION["user_id"] = uniqid();
         header('Location: logout.php');
     }
-    if($username === "user" && $password == "cookie") {
-        setcookie("user_id", uniqid());
-        header('Location: logout.php');
-    }
 ?>
 
 <form method="post">

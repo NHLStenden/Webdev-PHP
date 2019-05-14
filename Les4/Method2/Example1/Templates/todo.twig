@@ -1,0 +1,68 @@
+{% extends "_layout.twig" %}
+
+{% block title %}Todo App{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <style type="text/css">
+        h1 { color: #336699; }
+
+        .highlight {
+            background-color: aqua;
+        }
+
+        /*.todoItem:hover { background-color: aqua; }*/
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Welcome to my awesome Todo App.</h1>
+
+    <ul>
+        {% if todos|length > 0 %}
+            {% for todo in todos %}
+                {{ include("_todoLine.twig") }}
+            {% endfor %}
+        {% endif %}
+    </ul>
+
+
+    <form method="post">
+        {% if rowToEdit is not null %}
+            <input type="hidden" name="todoId" value="{{ rowToEdit.todoId }}">
+            <input type="hidden" name="ACTION" value="UpdateTodo">
+        {% else %}
+            <input type="hidden" name="ACTION" value="AddTodo">
+        {% endif %}
+
+        <input name="description" type="text" {% if rowToEdit.description is not empty %} value="{{ rowToEdit.description }}" {% endif %} >
+        <input name="done" type="checkbox"  {% if rowToEdit.done is not empty and rowToEdit.done %} checked {% endif %}>
+        <button type="submit">
+            {% if rowToEdit is not null %}
+                Update
+            {% else %}
+                Add
+            {% endif %}
+        </button>
+    </form>
+{% endblock %}
+
+
+{# block script can be empty (optional) #}
+{% block script %}
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+
+    <script type="application/javascript">
+        //kan natuurlijk ook met css zonder jQuery    .todoItem:hover { background-color: aqua; }
+        $(document).ready(function () {
+            $(".todoItem").mouseover(function () {
+                $(this).addClass("highlight");
+            });
+            $(".todoItem").mouseout(function () {
+                $(this).removeClass("highlight");
+            });
+        });
+    </script>
+{% endblock %}

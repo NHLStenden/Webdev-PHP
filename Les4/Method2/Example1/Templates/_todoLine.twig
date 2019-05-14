@@ -1,0 +1,9 @@
+<li class="todoItem">
+    {{ todo.description }} -- {{ todo.done }}
+    <form method="post">
+        <input type="hidden" name="todoId" value="{{ todo.todoId }}">
+        <button type="submit" name="ACTION" value="DeleteTodo">Delete</button>
+        <button type="submit" name="ACTION" value="EditTodo">Edit</button>
+    </form>
+    <a href="todo.php?action=EditTodo&todoId={{ todo.todoId }}">Edit</a>
+</li>

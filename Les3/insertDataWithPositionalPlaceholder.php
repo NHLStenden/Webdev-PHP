@@ -1,5 +1,5 @@
 <?php
-
+//insertDataWithPositionalPlaceholder.php
 $description = $_POST["description"] ?? false;
 $done = $_POST["done"] ?? false;
 if($done === "on") {
@@ -14,7 +14,7 @@ if($description !== false) {
     $password = "root";     //for mamp
 
     //default username, password for wamp is root, empty/blank
-
+    $conn = null;
     try {
         $conn = new PDO($dns, $username, $password);
 
@@ -34,6 +34,10 @@ if($description !== false) {
         echo "Inserted Record";
     } catch (PDOException $ex) {
         echo "Connection failed:  $ex";
+    } finally {
+        if(isset($conn)) {
+            $conn = null;
+        }
     }
 }
 
