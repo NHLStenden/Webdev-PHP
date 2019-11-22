@@ -89,6 +89,4 @@ $template = $twig->load('todo.twig');
 
 $todos = TodoDb::getTodos($todoDb);
 
-
-
 echo $template->render(['todos'=> $todos, 'rowToEdit' => $rowToEdit]);

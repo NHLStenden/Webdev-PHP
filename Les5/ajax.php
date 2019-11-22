@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: joris
- * Date: 2019-05-09
- * Time: 13:52
- */
+// Les5/ajax.php
 
 function is_ajax() {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';

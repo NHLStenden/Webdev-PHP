@@ -1,0 +1,149 @@
+{% extends "_layout.twig" %}
+
+{% block title %}Todo App{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <style type="text/css">
+        h1 { color: #336699; }
+
+        .highlight {
+            background-color: aqua;
+        }
+
+        /*.todoItem:hover { background-color: aqua; }*/
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Welcome to my awesome Todo App.</h1>
+
+    <ul id="todoList">
+
+    </ul>
+
+    <div id="addDeleteFormContainer">
+
+    </div>
+
+{% endblock %}
+
+
+{# block script can be empty (optional) #}
+{% block script %}
+
+<script id="todoItemTmpl" type="text/x-jsrender">
+    <li class="todoItem">
+        <%:description %> -- <%:done %>
+        <form method="post" class="todoItemCommandForm">
+            <input type="hidden" name="todoId" value="<%:todoId %>">
+                <input type="hidden" name="ACTION" value="EditTodo">
+                    <button type="submit">Edit</button>
+        </form>
+
+        <form method="post" class="todoItemCommandForm">
+            <input type="hidden" name="todoId" value="<%:todoId %>">
+                <input type="hidden" name="ACTION" value="DeleteTodo">
+                    <button type="submit">Delete</button>
+        </form>
+    </li>
+</script>
+
+<script id="addFormTmp" type="text/x-jsrender">
+    <form method="post" id="addOrUpdateForm">
+        <input type="hidden" name="ACTION" value="AddTodo">
+
+        <input name="description" type="text" >
+        <input name="done" type="checkbox">
+        <button type="submit">Add</button>
+    </form>
+</script>
+
+<script id="updateFormTmp" type="text/x-jsrender">
+    <form method="post" id="addOrUpdateForm">
+        <input type="hidden" name="todoId" value="<%:todoId %>">
+        <input type="hidden" name="ACTION" value="UpdateTodo">
+
+        <input name="description" type="text" value="<%:description %>">
+        <input name="done" type="checkbox" <%if done %> checked <%/if%> >
+        <button type="submit">Update</button>
+    </form>
+</script>
+
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://www.jsviews.com/download/jsrender.min.js"></script>
+
+    <script type="application/javascript">
+        $.views.settings.delimiters("<%", "%>");
+        var delimiters = $.views.settings.delimiters();
+
+        $(document).ready(function () {
+            var templateAddForm = $.templates("#addFormTmp");
+            var htmlOutputAddForm = templateAddForm.render();
+            $("#addDeleteFormContainer").append(htmlOutputAddForm);
+
+            $.getJSON("todoAjax.php", function (data) {
+                var templateTodoItem = $.templates("#todoItemTmpl");
+                var htmlOutputTodoItem = templateTodoItem.render(data);
+                $("#todoList").append(htmlOutputTodoItem);
+            });
+
+            $(document).on("submit", "form", function (event) {
+                event.preventDefault();
+
+                var data = $(this).serializeArray().reduce(function(obj, item) {
+                    obj[item.name] = item.value;
+                    return obj;
+                }, {});
+
+                if(data.ACTION === "EditTodo")
+                {
+                    $.getJSON("todoAjax.php?todoId="+data.todoId, function (todo)
+                    {
+                        var template = $.templates("#updateFormTmp");
+                        var htmlOutput = template.render(todo);
+
+                        $("#addOrUpdateForm").replaceWith(htmlOutput);
+                    });
+                } else {
+                    $.ajax("todoAjax.php", {
+                        data: {myData: JSON.stringify(data)},
+                        method: "POST",
+                        success: function (result) {
+                            if (data.ACTION === "AddTodo")
+                            {
+                                var template = $.templates("#todoItemTmpl");
+
+                                var htmlOutput = template.render(data);
+
+                                $("#todoList").append(htmlOutput);
+
+                                $("#addOrUpdateForm input[name=description]").val("");
+                                $("#addOrUpdateForm input[name=done]").prop('checked', false);
+                            }
+                            else if (data.ACTION === "DeleteTodo")
+                            {
+                                $(event.currentTarget).parents(".todoItem").remove();
+                            }
+                            else if(data.ACTION === "UpdateTodo")
+                            {
+                                if(result === true) {
+                                    debugger;
+                                    var templateUpdateTodo = $.templates("#todoItemTmpl");
+
+                                    debugger;
+
+                                    var htmlOutputUpdateTodo = templateUpdateTodo.render(data);
+
+                                    $(`.todoItemCommandForm input[value=${data.todoId}]:first`).parents(".todoItem").replaceWith(htmlOutputUpdateTodo);
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,3 +1,5 @@
+<!--  Les5/ajax.html -->
+
 <form class="js-ajax-php-json" method="post" accept-charset="utf-8">
     <input type="text" name="favorite_beverage" value="" placeholder="Favorite restaurant" />
     <input type="text" name="favorite_restaurant" value="" placeholder="Favorite beverage" />
@@ -17,8 +19,9 @@
         src="https://code.jquery.com/jquery-3.4.1.js"
         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
         crossorigin="anonymous"></script>
+
 <script type="text/javascript">
-    $("document").ready(function(){
+    $(document).ready(function(){
         $(".js-ajax-php-json").submit(function(){
             var data = {
                 "action": "test"
@@ -30,12 +33,17 @@
                 url: "ajax.php",
                 data: data,
                 success: function(data) {
-                    alert(data);
-
-
+                    console.log(data);
                     $(".the-return").empty();
 
-                    $(".the-return").append("<li>" +data["favorite_beverage"] +"</li>");
+                    $ul = $(".the-return").append("<ul></ul>");
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            $ul.append(`<li>Key: ${key} -- Value: ${data[key]} </li>`)
+                        }
+                    }
+
+                    $(".the-return").append($ul);
                 }
             });
             return false;
