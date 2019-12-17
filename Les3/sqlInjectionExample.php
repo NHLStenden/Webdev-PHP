@@ -5,7 +5,6 @@ function validate($str) {
     return trim(htmlspecialchars($str));
 }
 
-
 if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
 {
     $searchDescription = validate($_GET["searchDescription"]);
