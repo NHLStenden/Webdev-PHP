@@ -2,10 +2,9 @@
 <?php
 //echo $_POST["name"];
 
-$name = $_POST["name"] ?? "Leeg";
+$name = $_POST["name"] ?? "Geen Naam";
+$email = $_POST["email"] ?? "Geen Email";
 //print $name;
-
-echo $_GET['test'];
 
 ?>
 <form method="post">
@@ -13,3 +12,8 @@ echo $_GET['test'];
     E-mail: <input type="text" name="email"><br>
     <input type="submit">
 </form>
+
+<?php
+    print $name ."<br/>";
+    print $email
+?>
