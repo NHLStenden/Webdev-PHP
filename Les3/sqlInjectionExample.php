@@ -1,24 +1,18 @@
 <?php
 //sqlInjectionExample.php
-
-function validate($str) {
-    return trim(htmlspecialchars($str));
-}
+$host = "localhost";
+$databaseName = "TodoDb";
+$connectionString = "mysql:host=$host;dbname=$databaseName";
+$username = "student";     //root is default in most cases
+$password = "student";     //root is default in most cases
 
 if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
 {
-    $searchDescription = validate($_GET["searchDescription"]);
-
-    $host = "localhost";
-    $databaseName = "TodoDb";
-    $dns = "mysql:host=$host;dbname=$databaseName";
-    $username = "root";     //for mamp
-    $password = "root";     //for mamp
+    $searchDescription = $_GET["searchDescription"];
 
     //default username, password for wamp is root, empty/blank
-
     try {
-        $conn = new PDO($dns, $username, $password);
+        $conn = new PDO($connectionString, $username, $password);
 
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -39,7 +33,7 @@ if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
         }
 
     } catch (PDOException $ex) {
-        echo "Connection failed:  $ex";
+        echo "PDOException:  $ex";
     }
 } else {
     echo "invalid input!";

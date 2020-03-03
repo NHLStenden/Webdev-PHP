@@ -1,5 +1,11 @@
 <?php
 //insertDataWithPositionalPlaceholder.php
+$host = "localhost";
+$databaseName = "TodoDb";
+$connectionString = "mysql:host=$host;dbname=$databaseName";
+$username = "student";     //root is default in most cases
+$password = "student";     //root is default in most cases
+
 $description = $_POST["description"] ?? false;
 $done = $_POST["done"] ?? false;
 if($done === "on") {
@@ -7,16 +13,16 @@ if($done === "on") {
 }
 
 if($description !== false) {
-    $host = "localhost";
-    $databaseName = "TodoDb";
-    $dns = "mysql:host=$host;dbname=$databaseName";
-    $username = "root";     //for mamp
-    $password = "root";     //for mamp
+    $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
+    if($description === false) {
+        echo "Error in description";
+        die();
+    }
 
     //default username, password for wamp is root, empty/blank
     $conn = null;
     try {
-        $conn = new PDO($dns, $username, $password);
+        $conn = new PDO($connectionString, $username, $password);
 
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -33,7 +39,7 @@ if($description !== false) {
 
         echo "Inserted Record";
     } catch (PDOException $ex) {
-        echo "Connection failed:  $ex";
+        echo "PDOException:  $ex";
     } finally {
         if(isset($conn)) {
             $conn = null;

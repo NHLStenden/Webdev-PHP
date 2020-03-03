@@ -1,26 +1,25 @@
 <?php
 //insertDataWithNamedPlaceholders.php
-function validate($str) {
-    return trim(htmlspecialchars($str));
-}
-
+$host = "localhost";
+$databaseName = "TodoDb";
+$connectionString = "mysql:host=$host;dbname=$databaseName";
+$username = "student";     //root is default in most cases
+$password = "student";     //root is default in most cases
 
 if(!empty($_POST["description"]))
 {
-    $description = validate(filter_var($_POST["description"], FILTER_SANITIZE_STRING));
-    $done = isset($_POST["done"]) ? true : false;
+    $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
+    if($description === false) {
+        echo "Error in description";
+        die();
+    }
 
-    $host = "localhost";
-    $databaseName = "TodoDb";
-    $dns = "mysql:host=$host;dbname=$databaseName";
-    $username = "root";     //for mamp
-    $password = "root";     //for mamp
+    $done = isset($_POST["done"]) ? true : false;
 
     //default username, password for wamp is root, empty/blank
     $conn = null;
     try {
-        $conn = new PDO($dns, $username, $password);
-
+        $conn = new PDO($connectionString, $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $sql = "INSERT INTO Todos (Description, Done) VALUES (:description, :done)";
@@ -28,16 +27,11 @@ if(!empty($_POST["description"]))
         $stmt = $conn->prepare($sql);
         $stmt->bindValue("description", $description, PDO::PARAM_STR);
         $stmt->bindValue("done", $done, PDO::PARAM_BOOL);
-        $stmt->execute();
-
-//        $stmt->execute(array("description" => $description, "done" => $done));
-
-        //chain
-        //$conn->prepare($sql)->execute([$description]);
-
-        echo "Inserted Record";
+        if($stmt->execute()) {
+            echo "Inserted Record";
+        } //else is in the Exception (an error occurred)!
     } catch (PDOException $ex) {
-        echo "Connection failed:  $ex";
+        echo "PDOException:  $ex";
     } finally {
         if($conn != null) {
             $conn = null;

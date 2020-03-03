@@ -1,35 +1,32 @@
 <?php
 //insertData.php
+$host = "localhost";
+$databaseName = "TodoDb";
+$connectionString = "mysql:host=$host;dbname=$databaseName";
+$username = "student";     //root is default in most cases
+$password = "student";     //root is default in most cases
+
 $description = $_POST["description"] ?? false;
 
 if($description !== false) {
-    $host = "localhost";
-    $databaseName = "TodoDb";
-    $dns = "mysql:host=$host;dbname=$databaseName";
-    $username = "root";     //for mamp
-    $password = "root";     //for mamp
-
-    //default username, password for wamp is root, empty/blank
-
     try {
-        $conn = new PDO($dns, $username, $password);
-
+        $conn = new PDO($connectionString, $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        //don't do this!!! SQL INJECTION!!!!!!!!!
         $sql = "INSERT INTO Todos (Description) VALUES ('$description')";
-
+        //don't do this!!! SQL INJECTION!!!!!!!!!
         $conn->exec($sql);
 
         echo "Inserted Record";
     } catch (PDOException $ex) {
-        echo "Connection failed:  $ex";
+        echo "PDOException:  $ex";
     } finally {
         if(isset($conn)) {
             $conn = null;
         }
     }
 }
-
 ?>
 
 <form method="post">

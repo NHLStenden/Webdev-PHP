@@ -32,6 +32,7 @@
         }
     }
 
+    //Good starting point, but not really safe?, use filter_var() instead!!!
     function test_input($data) {
         $data = trim($data);
         $data = stripslashes($data);

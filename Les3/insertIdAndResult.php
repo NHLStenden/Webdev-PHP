@@ -1,24 +1,19 @@
 <?php
 //insertIdAndResult.php
-function validate($str) {
-    return trim(htmlspecialchars($str));
-}
+$host = "localhost";
+$databaseName = "TodoDb";
+$connectionString = "mysql:host=$host;dbname=$databaseName";
+$username = "student";     //root is default in most cases
+$password = "student";     //root is default in most cases
 
 if(!empty($_POST["description"]))
 {
-    $description = validate(filter_var($_POST["description"], FILTER_SANITIZE_STRING));
+    $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
     $done = isset($_POST["done"]) ? true : false;
-
-    $host = "localhost";
-    $databaseName = "TodoDb";
-    $dns = "mysql:host=$host;dbname=$databaseName";
-    //default username, password for wamp is root, empty/blank
-    $username = "root";     //for mamp
-    $password = "root";     //for mamp
 
     $conn = null;
     try {
-        $conn = new PDO($dns, $username, $password);
+        $conn = new PDO($connectionString, $username, $password);
 
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -37,7 +32,7 @@ if(!empty($_POST["description"]))
             echo "Inserted failed";
         }
     } catch (PDOException $ex) {
-        echo "Connection failed:  $ex";
+        echo "PDOException:  $ex";
     } finally {
         if(isset($conn)) {
             $conn = null;

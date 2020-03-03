@@ -1,29 +1,23 @@
 <?php
 //todoExample.php
 
-function validate($str) {
-    return trim(htmlspecialchars($str));
-}
-
 $host = "localhost";
 $databaseName = "TodoDb";
 $dns = "mysql:host=$host;dbname=$databaseName";
 $username = "root";     //for mamp
 $password = "root";     //for mamp
 
-//I had problems with $options to get it working
-//$options = [
-//    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-//    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,           //I think this is the default fetch mode?
-//    PDO::ATTR_EMULATE_PREPARES   => false,
-//];
-
 $rowToEdit = null;
 
+$errors = [];
+
 $conn = null;
+
+$description = "";
+$done = false;
+
 try {
     $conn = new PDO($dns, $username, $password);
-
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -31,12 +25,26 @@ try {
             $action = $_POST["ACTION"];
 
             if ($action === "AddTodo") {
-                if (isset($_POST["description"]) && !empty($_POST["description"])) {
+                if(!empty($_POST["description"])) {
+                    $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
+                    if($description === false) {
+                        array_push($errors, "Description has a problem");
+                        $description = "";
+                    }
+                } else {
+                  array_push($errors, "Description is empty");
+                }
+
+                if(!empty($_POST["done"])) {
+                    $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
+                    if($done === false) {
+                        array_push($errors, "incorrect done");
+                        $done = false;
+                    }
+                }
+
+                if(count($errors) == 0) {
                     $sqlInsert = "INSERT INTO Todos (Description, Done) VALUES (:description, :done)";
-
-                    $description = validate($_POST["description"]);
-                    $done = false;
-
                     $stmtInsert = $conn->prepare($sqlInsert);
                     $stmtInsert->bindValue(":description", $description, PDO::PARAM_STR);
                     $stmtInsert->bindValue(":done", $done, PDO::PARAM_BOOL);
@@ -47,15 +55,16 @@ try {
                         } else {
                             echo "Not Updated";
                         }
-                    } else {
-                        echo "Error";
-                    }
-                } else {
-                    echo "Invalid input";
+                    } //else is error thrown (PDOException)
                 }
             } else if ($action === "DeleteTodo") {
-                if (isset($_POST["todoId"]) && !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT)) {
-                    $todoId = (int)$_POST["todoId"];
+                if(!empty($_POST["todoId"])) {
+                    $todoId = filter_var($_POST["todoId"], FILTER_SANITIZE_NUMBER_INT);
+                    //$todoId = (int)$_POST["todoId"]; //cast is done by filter_var to correct type
+
+                    if($todoId === false) {
+                        array_push($errors, "invalid todoId");
+                    }
 
                     $sqlDelete = "DELETE FROM Todos WHERE TodoId = :todoId";
 
@@ -68,11 +77,9 @@ try {
                         } else {
                             echo "Record not deleted";
                         }
-                    } else {
-                        echo "Error";
-                    }
+                    } //else is error thrown (PDOException)
                 } else {
-                    echo "Invalid Input";
+                    array_push($errors, "todoId is empty") ;
                 }
             } else if ($action === "EditTodo") {
                 if (isset($_POST["todoId"]) && !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT)) {
@@ -92,22 +99,37 @@ try {
                             $rowToEdit = null;
                             echo "Record not found";
                         }
-                    } else {
-                        echo "Error";
-                    }
+                    } //else is error thrown (PDOException)
                 } else {
-                    echo "Invalid Input";
+                    array_push($errors, "todoId is empty") ;
                 }
             } else if ($action === "UpdateTodo") {
-                if (isset($_POST["todoId"], $_POST["description"]) &&
-                    !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT) &&
-                    !empty(validate($_POST["description"]))) {
-                    $todoId = (int)$_POST["todoId"];
+                if(!empty($_POST["todoId"])) {
+                    $todoId = filter_var($_POST["todoId"], FILTER_SANITIZE_NUMBER_INT);
+                    if($todoId === false) {
+                        array_push($errors, "todoId is invalid");
+                    }
+                }
 
-                    $description = validate($_POST["description"]);
+                if(!empty($_POST["description"])) {
+                    $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
+                    if($description === false) {
+                        array_push($errors, "Description has a problem");
+                        $description = "";
+                    }
+                } else {
+                    array_push($errors, "Description is empty");
+                }
 
-                    $done = isset($_POST["done"]);
+                if(!empty($_POST["done"])) {
+                    $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
+                    if($done === false) {
+                        array_push($errors, "incorrect done");
+                        $done = false;
+                    }
+                }
 
+                if(count($errors) == 0) {
                     $sqlEdit = "UPDATE Todos SET Description = :description, Done = :done WHERE TodoId = :todoId";
 
                     $stmtEdit = $conn->prepare($sqlEdit);
@@ -122,11 +144,7 @@ try {
                         } else {
                             echo "Not Updated";
                         }
-                    } else {
-                        echo "Error";
-                    }
-                } else {
-                    echo "Invalid Input";
+                    } //else is error thrown (PDOException)
                 }
             }
         }
@@ -141,11 +159,7 @@ try {
 
             if ($stmtEdit->execute()) {
                 $rowToEdit = $stmtEdit->fetch();
-            } else {
-                echo "Error";
-            }
-        } else {
-            echo "Invalid Input";
+            } //else is error thrown (PDOException)
         }
     }
 
@@ -154,19 +168,17 @@ try {
     $stmtSelect = $conn->prepare($sql);
     $stmtSelect->execute();
 
-    $result = $stmtSelect->setFetchMode();
-
     $rows = $stmtSelect->fetchAll();
 
     $numRecords1 = $stmtSelect->rowCount();
 
     //count with SQL
-    $stmtCount = $conn->prepare("SELECT COUNT(1) FROM Todos");
+    $stmtCount = $conn->prepare("SELECT COUNT(1) FROM Todos WHERE Done = TRUE");
     $stmtCount->execute();
     $numRecords2 = $stmtCount->fetchColumn();
 
 } catch (PDOException $ex) {
-    echo "Connection failed:  $ex";
+    echo "PDOException:  $ex";
     die();
 } finally {
     if($conn != null) {
@@ -175,13 +187,24 @@ try {
 }
 ?>
 
-<h1>Num of Todos method1: <?= $numRecords1 ?></h1>
-<h1>Num of Todos method2: <?= $numRecords2 ?></h1>
+<?
+    if(count($errors) > 0) {
+        echo "<h1>Errors:</h1>";
+        echo "<ul>";
+        foreach ($errors as $error) {
+            echo "<li>$error</li>";
+        }
+        echo "</ul>";
+    }
+?>
+
+<h1>Num of Todos (in total): <?= $numRecords1 ?></h1>
+<h1>Num of Todos (completed): <?= $numRecords2 ?></h1>
 
 <ul>
     <? foreach ($rows as $row) { ?>
         <li>
-            <?= $row["Description"] ?>
+            <?= $row["Description"] ?> --- <?= $row["Done"] ?>
             <form method="post">
                 <input type="hidden" name="todoId" value="<?= $row["TodoId"] ?>">
                 <button type="submit" name="ACTION" value="DeleteTodo">Delete</button>
@@ -189,6 +212,7 @@ try {
             </form>
             <a href="todoExample.php?action=EditTodo&todoId=<?= $row['TodoId'] ?>">Edit</a>
         </li>
+        <hr>
     <? } ?>
 </ul>
 

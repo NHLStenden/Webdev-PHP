@@ -1,40 +1,32 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: joris
- * Date: 2019-04-23
- * Time: 14:21
- */
-
+//sqlInjectionPreventExample.php
+$host = "localhost";
+$databaseName = "TodoDb";
+$connectionString = "mysql:host=$host;dbname=$databaseName";
+$username = "student";     //root is default in most cases
+$password = "student";     //root is default in most cases
 
 function validate($str) {
     return trim(htmlspecialchars($str));
 }
 
-
 if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
 {
-    $searchDescription = validate($_GET["searchDescription"]);
-
-    $host = "localhost";
-    $databaseName = "TodoDb";
-    $dns = "mysql:host=$host;dbname=$databaseName";
-    $username = "root";     //for mamp
-    $password = "root";     //for mamp
+    $searchDescription = $_GET["searchDescription"];
 
     //default username, password for wamp is root, empty/blank
-
     try {
-        $conn = new PDO($dns, $username, $password);
+        $conn = new PDO($connectionString, $username, $password);
 
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         //Add the following string to the querystring searchDescription:    "' OR 1 = 1; --"
         //Or something like this: "'; DROP TABLE Todos; --"
-        $sql = "SELECT TodoId, Description, Done FROM Todos WHERE Description = :searchDescription";
+        $sql = "SELECT TodoId, Description, Done FROM Todos WHERE Description = :searchDescription AND Done = :done";
 
         $stmt = $conn->prepare($sql);
         $stmt->bindValue("searchDescription", $searchDescription, PDO::PARAM_STR);
+        //$stmt->bindValue("done", true, PDO::PARAM_BOOL);
         $stmt->execute();
 
         $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -47,7 +39,7 @@ if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
         }
 
     } catch (PDOException $ex) {
-        echo "Connection failed:  $ex";
+        echo "PDOException:  $ex";
     }
 } else {
     echo "invalid input!";
