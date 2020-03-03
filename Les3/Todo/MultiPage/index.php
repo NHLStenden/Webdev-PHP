@@ -51,11 +51,11 @@ try
                 <input type="hidden" name="todoId" value="<?= $row["TodoId"] ?>">
                 <button type="submit">Delete</button>
             </form>
-            <form method="post" action="edit.php">
+            <form method="post" action="update.php">
                 <input type="hidden" name="todoId" value="<?= $row["TodoId"] ?>">
                 <button type="submit">Edit</button>
             </form>
-            <a href="edit.php?todoId=<?= $row['TodoId'] ?>">Edit</a> |
+            <a href="update.php?todoId=<?= $row['TodoId'] ?>">Edit</a> |
             <a href="delete.php?todoId=<?= $row['TodoId'] ?>">Delete</a>
             <hr>
         </li>
