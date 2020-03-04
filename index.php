@@ -1,45 +1,69 @@
-<html>
-<head>
-    <title>Overzicht van voorbeelden</title>
-</head>
-<body>
-<h1>Overzicht van voorbeelden, de code staat ook vaak in de  <a href="https://slides.com/jorislops/php#/">slides</a> </h1>
-
 <?php
+function getFileList($dir)
+{
+    // array to hold return value
+    $retval = [];
 
-function getDirContents($dir, &$results = array()){
-    $files = scandir($dir);
-    foreach($files as $key => $value){
-        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
-        if(!is_dir($path)) {
-            $results[] = $path;
-        } else if(strpos($value,".") === false) {
-            getDirContents($path, $results);
-            $results[] = $path;
+    // add trailing slash if missing
+    if(substr($dir, -1) != "/") {
+        $dir .= "/";
+    }
+
+    // open pointer to directory and read list of files
+    $d = dir($dir) or die("getFileList: Failed opening directory {$dir} for reading");
+    while(FALSE !== ($entry = $d->read())) {
+        // skip hidden files
+        if($entry{0} == ".") continue;
+        if(is_dir("{$dir}{$entry}")) {
+            $retval[] = [
+                'name' => "{$dir}{$entry}/",
+                'type' => filetype("{$dir}{$entry}"),
+                'size' => 0,
+                'lastmod' => filemtime("{$dir}{$entry}"),
+                'is_dir' => true,
+                'children' => getFileList("{$dir}{$entry}/")
+            ];
+        } elseif(is_readable("{$dir}{$entry}")) {
+            $pathInfo = pathinfo("{$dir}{$entry}");
+            $retval[] = [
+                'name' => "{$dir}{$entry}",
+                'filename' => "{$entry}",
+                'type' => mime_content_type("{$dir}{$entry}"),
+                'size' => filesize("{$dir}{$entry}"),
+                'lastmod' => filemtime("{$dir}{$entry}"),
+                'is_dir' => false,
+                'extension' => $pathInfo['extension']
+            ];
         }
     }
-    return $results;
+    $d->close();
+
+    return $retval;
 }
 
-$result = getDirContents(__DIR__);
-$directories = glob(__DIR__);
-$dir = "";
+function displayTree(array $tree, string $rootDir) {
+    //sort on name
+    usort($tree, function($a, $b) {return strcmp($a['name'], $b['name']);});
 
-foreach($result as $file){
-    if(!is_dir($file)){
-        if($dir != substr($file, 0, strrpos($file, "/")+1) && strpos($file,"Templates") === false){
-            $dir = substr($file, 0, strrpos($file, "/")+1);
-            $url = substr($dir, strlen(__DIR__));
-            echo "<p>$url</p>";
-        }
-        if(strpos($file ,".twig") === false){
-            $filename = substr($file,strrpos($file, "/")+1);
-            $url = substr($file, strlen(__DIR__));
-            echo "<a href='$url'>$filename</a>";
-            echo "</br>";
+    echo "<ul>";
+    foreach ($tree as $node) {
+        if(isset($node['name'])) {
+            $relativePath =  substr($node['name'], strlen($rootDir)+1);
+            if($node['is_dir']) {
+                echo "<li>" .$relativePath ."</li>";
+            } else {
+                echo "<li><a href='$relativePath'>"  .$node['filename']   ."</a></li>";
+            }
+
+            if($node['is_dir']) {
+                displayTree($node['children'], $rootDir);
+            }
         }
     }
+    echo "</ul>";
 }
-?>
-</body>
-</html>
+
+$rootDir = __DIR__;
+$tree = getFileList($rootDir);
+
+displayTree($tree, $rootDir);
