@@ -17,7 +17,7 @@ if($todoId === false) {
     die();
 }
 
-$todoId = filter_var($todoId, FILTER_SANITIZE_NUMBER_INT);
+$todoId = filter_var($todoId, FILTER_VALIDATE_INT);
 if($todoId === false) {
     echo "TodoId: $todoId is incorrect!";
     die();

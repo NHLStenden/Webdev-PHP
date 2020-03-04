@@ -28,17 +28,19 @@ try {
                 if(!empty($_POST["description"])) {
                     $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
                     if($description === false) {
-                        array_push($errors, "Description has a problem");
+                        $errors[] = "Description has a problem";
                         $description = "";
                     }
                 } else {
-                  array_push($errors, "Description is empty");
+                    //add item to array $errors
+                    $errors[] = "Description is empty";
                 }
 
                 if(!empty($_POST["done"])) {
                     $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
                     if($done === false) {
-                        array_push($errors, "incorrect done");
+                        //add item to array $errors
+                        $errors[] = "Incorrect done";
                         $done = false;
                     }
                 }
@@ -59,72 +61,80 @@ try {
                 }
             } else if ($action === "DeleteTodo") {
                 if(!empty($_POST["todoId"])) {
-                    $todoId = filter_var($_POST["todoId"], FILTER_SANITIZE_NUMBER_INT);
-                    //$todoId = (int)$_POST["todoId"]; //cast is done by filter_var to correct type
+                    $todoId = filter_var($_POST["todoId"], FILTER_VALIDATE_INT);
+                    //$todoId = (int)$_POST["todoId"]; //cast is done by filter_var to correct type, if successful
 
                     if($todoId === false) {
-                        array_push($errors, "invalid todoId");
+                        //add item to array $errors
+                        $errors[] = "invalid todoId";
+                    } else {
+                        $sqlDelete = "DELETE FROM Todos WHERE TodoId = :todoId";
+
+                        $stmtDelete = $conn->prepare($sqlDelete);
+                        $stmtDelete->bindValue(":todoId", $todoId, PDO::PARAM_INT);
+
+                        if ($stmtDelete->execute()) {
+                            if($stmtDelete->rowCount() == 1) {
+                                echo "Record deleted successful";
+                            } else {
+                                echo "Record not deleted";
+                            }
+                        } //else is error thrown (PDOException)
                     }
-
-                    $sqlDelete = "DELETE FROM Todos WHERE TodoId = :todoId";
-
-                    $stmtDelete = $conn->prepare($sqlDelete);
-                    $stmtDelete->bindValue(":todoId", $todoId, PDO::PARAM_INT);
-
-                    if ($stmtDelete->execute()) {
-                        if($stmtDelete->rowCount() == 1) {
-                            echo "Record deleted successful";
-                        } else {
-                            echo "Record not deleted";
-                        }
-                    } //else is error thrown (PDOException)
                 } else {
-                    array_push($errors, "todoId is empty") ;
+                    //add item to array $errors
+                    $errors[] = "todoId is empty";
                 }
             } else if ($action === "EditTodo") {
-                if (isset($_POST["todoId"]) && !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT)) {
-                    $todoId = (int)$_POST["todoId"];
+                if (isset($_POST["todoId"])) {
 
-                    $sqlEdit = "SELECT TodoId, Description, Done FROM Todos WHERE TodoId = :todoId";
+                    $todoId = filter_var($_POST['TodoId'], FILTER_VALIDATE_INT);
+                    if($todoId === false) {
+                        //add item to array $errors
+                        $errors[] = "todoId is has invalid";
+                    } else {
+                        $sqlEdit = "SELECT TodoId, Description, Done FROM Todos WHERE TodoId = :todoId";
 
-                    $stmtEdit = $conn->prepare($sqlEdit);
-                    $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
+                        $stmtEdit = $conn->prepare($sqlEdit);
+                        $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
 
-                    //$stmtEdit->setFetchMode(PDO::FETCH_ASSOC); ////not needed, set with $options, but enables you to change fetch mode from default specified
+                        //$stmtEdit->setFetchMode(PDO::FETCH_ASSOC); ////not needed, set with $options, but enables you to change fetch mode from default specified
 
-                    if ($stmtEdit->execute()) {
-                        if($stmtEdit->rowCount() == 1) {
-                            $rowToEdit = $stmtEdit->fetch(PDO::FETCH_ASSOC); //not needed parameter, set with $options, but enables you to change fetch mode from default (another way)
-                        } else {
-                            $rowToEdit = null;
-                            echo "Record not found";
-                        }
-                    } //else is error thrown (PDOException)
+                        if ($stmtEdit->execute()) {
+                            if($stmtEdit->rowCount() == 1) {
+                                $rowToEdit = $stmtEdit->fetch(PDO::FETCH_ASSOC); //not needed parameter, set with $options, but enables you to change fetch mode from default (another way)
+                            } else {
+                                $rowToEdit = null;
+                                echo "Record not found";
+                            }
+                        } //else is error thrown (PDOException)
+                    }
                 } else {
-                    array_push($errors, "todoId is empty") ;
+                    $errors[] = "todoId is empty";
                 }
             } else if ($action === "UpdateTodo") {
                 if(!empty($_POST["todoId"])) {
-                    $todoId = filter_var($_POST["todoId"], FILTER_SANITIZE_NUMBER_INT);
+                    $todoId = filter_var($_POST['TodoId'], "TodoId", FILTER_VALIDATE_INT);
                     if($todoId === false) {
-                        array_push($errors, "todoId is invalid");
+                        //add item to array $errors
+                        $errors[] = "todoId is has invalid";
                     }
                 }
 
                 if(!empty($_POST["description"])) {
                     $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
                     if($description === false) {
-                        array_push($errors, "Description has a problem");
+                        $errors[] = "Description has a problem";
                         $description = "";
                     }
                 } else {
-                    array_push($errors, "Description is empty");
+                    $errors[] = "Description is empty";
                 }
 
                 if(!empty($_POST["done"])) {
                     $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
                     if($done === false) {
-                        array_push($errors, "incorrect done");
+                        $errors[] = "incorrect done";
                         $done = false;
                     }
                 }
@@ -149,17 +159,21 @@ try {
             }
         }
     } else if ($_SERVER["REQUEST_METHOD"] === "GET") {
-        if (isset($_GET["todoId"]) && !filter_input(INPUT_GET, "TodoId", FILTER_VALIDATE_INT)) {
-            $todoId = (int)$_GET["todoId"];
+        if (isset($_GET["todoId"])) {
+            $todoId = filter_var($_GET['todoId'], FILTER_VALIDATE_INT);
+            if($todoId === false) {
+                //add item to array $errors
+                $errors[] = "todoId is has invalid";
+            } else {
+                $sqlEdit = "SELECT TodoId, Description, Done FROM Todos WHERE TodoId = :todoId";
 
-            $sqlEdit = "SELECT TodoId, Description, Done FROM Todos WHERE TodoId = :todoId";
+                $stmtEdit = $conn->prepare($sqlEdit);
+                $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
 
-            $stmtEdit = $conn->prepare($sqlEdit);
-            $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
-
-            if ($stmtEdit->execute()) {
-                $rowToEdit = $stmtEdit->fetch();
-            } //else is error thrown (PDOException)
+                if ($stmtEdit->execute()) {
+                    $rowToEdit = $stmtEdit->fetch();
+                } //else is error thrown (PDOException)
+            }
         }
     }
 

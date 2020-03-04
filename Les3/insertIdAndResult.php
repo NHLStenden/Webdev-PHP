@@ -9,7 +9,7 @@ $password = "student";     //root is default in most cases
 if(!empty($_POST["description"]))
 {
     $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
-    $done = isset($_POST["done"]) ? true : false;
+    $done = isset($_POST["done"]) ? true : false; //this is a trick (only possible with checkbox)
 
     $conn = null;
     try {

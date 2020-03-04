@@ -1,3 +1,4 @@
+<!-- form_validation.php -->
 <?php
     $nameErr = $ageErr = "";
     $name = $age = "";
@@ -10,34 +11,26 @@
             $nameErr = "name is required";
             $error = true;
         } else {
-            $name = test_input($_POST["name"]);
+            $name = filter_var($_POST["name"], FILTER_SANITIZE_STRING);
         }
 
         if(empty($_POST["age"])) {
             $ageErr = "age is required";
             $error = true;
         } else {
-            $age = test_input($_POST["age"]);
-            //$age is still a string
+            $age = filter_var($_POST["age"], FILTER_VALIDATE_INT);
 
-            if(is_int($age)) {
-                $age = (int)$age; //bad programing practice to change type of a variable!
+            if($age === false) {
+                $ageErr = "age is incorrect";
+                $age = "";
+                $error = true;
+            } else {
                 if($age < 18) {
                     $ageErr = "to young";
                     $error = true;
                 }
-            } else {
-                $ageErr = "no integer";
             }
         }
-    }
-
-    //Good starting point, but not really safe?, use filter_var() instead!!!
-    function test_input($data) {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
     }
 ?>
 
