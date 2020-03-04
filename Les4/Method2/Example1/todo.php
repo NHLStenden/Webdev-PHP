@@ -16,7 +16,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         $action = $_POST["ACTION"];
 
         if ($action === "DeleteTodo" && isset($_POST["todoId"]) &&
-            !filter_var($_POST["TodoId"], FILTER_VALIDATE_INT))
+            !filter_var($_POST["todoId"], FILTER_VALIDATE_INT))
         {
             $todoId = (int)$_POST["todoId"];
 
@@ -74,7 +74,7 @@ else if ($_SERVER["REQUEST_METHOD"] === "GET") //kan net zo goed met een post (b
 {
     if (isset($_GET["todoId"]))
     {
-        if(!filter_var($_GET["TodoId"], FILTER_VALIDATE_INT))
+        if(!filter_var($_GET["todoId"], FILTER_VALIDATE_INT))
         {
               $todoId = (int)$_GET["todoId"];
               $rowToEdit = $todoDb->getTodo($todoId);
