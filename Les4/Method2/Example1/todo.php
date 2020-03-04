@@ -16,7 +16,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         $action = $_POST["ACTION"];
 
         if ($action === "DeleteTodo" && isset($_POST["todoId"]) &&
-            !filter_var($_POST["todoId"], FILTER_VALIDATE_INT))
+            filter_var($_POST["todoId"], FILTER_VALIDATE_INT))
         {
             $todoId = (int)$_POST["todoId"];
 
@@ -39,16 +39,24 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         }
         else if ($action === "UpdateTodo")
         {
-            if (isset($_POST["todoId"], $_POST["description"]) &&
-                !filter_var($_POST["todoId"], FILTER_VALIDATE_INT) &&
-                !empty(validate($_POST["description"])))
+            if (isset($_POST["todoId"], $_POST["description"]))
             {
-                $todo = new Todo();
-                $todo->todoId = (int)$_POST["todoId"];
-                $todo->description = validate($_POST["description"]);
-                $todo->done = isset($_POST["done"]);
+                $todoId = filter_var($_POST["todoId"], FILTER_VALIDATE_INT);
+                if($todoId !== false) {
+                    $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
+                    if($description !== false) {
+                        $todo = new Todo();
+                        $todo->todoId = (int)$_POST["todoId"];
+                        $todo->description = validate($_POST["description"]);
+                        $todo->done = isset($_POST["done"]);
 
-                $todoDb->updateTodo($todo);
+                        $todoDb->updateTodo($todo);
+                    } else {
+                        echo "Invalid input";
+                    }
+                } else {
+                    echo "Invalid input";
+                }
             }
             else
             {
@@ -58,7 +66,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         else if ($action === "EditTodo")
         {
             if (isset($_POST["todoId"]) &&
-                !filter_var($_POST["todoId"], FILTER_VALIDATE_INT))
+                filter_var($_POST["todoId"], FILTER_VALIDATE_INT))
             {
                 $todoId = (int)$_POST["todoId"];
                 $rowToEdit = $todoDb->getTodo($todoId);
@@ -74,7 +82,7 @@ else if ($_SERVER["REQUEST_METHOD"] === "GET") //kan net zo goed met een post (b
 {
     if (isset($_GET["todoId"]))
     {
-        if(!filter_var($_GET["todoId"], FILTER_VALIDATE_INT))
+        if(filter_var($_GET["todoId"], FILTER_VALIDATE_INT))
         {
               $todoId = (int)$_GET["todoId"];
               $rowToEdit = $todoDb->getTodo($todoId);
