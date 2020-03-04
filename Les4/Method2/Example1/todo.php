@@ -2,10 +2,6 @@
 
 include "TodoDb.php";
 
-function validate($str) {
-    return trim(htmlspecialchars($str));
-}
-
 require_once ($_SERVER['DOCUMENT_ROOT'] .'/vendor/autoload.php');
 
 //$twig->addExtension(new \Twig\Extension\EscaperExtension("html"));
@@ -20,7 +16,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         $action = $_POST["ACTION"];
 
         if ($action === "DeleteTodo" && isset($_POST["todoId"]) &&
-            !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT))
+            !filter_var($_POST["TodoId"], FILTER_VALIDATE_INT))
         {
             $todoId = (int)$_POST["todoId"];
 
@@ -30,8 +26,13 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         {
             if (isset($_POST["description"]) && !empty($_POST["description"]))
             {
-                $description = validate($_POST["description"]);
-                $done = validate($_POST["done"] ?? false);
+                $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
+                if($description === false) {
+                    $description = "";
+                    echo "Invalid Input";
+                }
+
+                $done = isset($_POST["done"]) ? true : false;
 
                 $todoDb->addTodo($description, $done);
             }
@@ -39,7 +40,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
         else if ($action === "UpdateTodo")
         {
             if (isset($_POST["todoId"], $_POST["description"]) &&
-                !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT) &&
+                !filter_var($_POST["todoId"], FILTER_VALIDATE_INT) &&
                 !empty(validate($_POST["description"])))
             {
                 $todo = new Todo();
@@ -49,11 +50,15 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
 
                 $todoDb->updateTodo($todo);
             }
+            else
+            {
+                echo "Invalid Input";
+            }
         }
         else if ($action === "EditTodo")
         {
             if (isset($_POST["todoId"]) &&
-                !filter_input(INPUT_POST, "TodoId", FILTER_VALIDATE_INT))
+                !filter_var($_POST["todoId"], FILTER_VALIDATE_INT))
             {
                 $todoId = (int)$_POST["todoId"];
                 $rowToEdit = $todoDb->getTodo($todoId);
@@ -69,7 +74,7 @@ else if ($_SERVER["REQUEST_METHOD"] === "GET") //kan net zo goed met een post (b
 {
     if (isset($_GET["todoId"]))
     {
-        if(!filter_input(INPUT_GET, "TodoId", FILTER_VALIDATE_INT))
+        if(!filter_var($_GET["TodoId"], FILTER_VALIDATE_INT))
         {
               $todoId = (int)$_GET["todoId"];
               $rowToEdit = $todoDb->getTodo($todoId);
