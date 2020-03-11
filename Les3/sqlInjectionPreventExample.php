@@ -10,7 +10,7 @@ function validate($str) {
     return trim(htmlspecialchars($str));
 }
 
-if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
+if(isset($_GET["searchDescription"]))
 {
     $searchDescription = $_GET["searchDescription"];
 
@@ -26,7 +26,7 @@ if(isset($_GET["searchDescription"]) && $_GET["searchDescription"])
 
         $stmt = $conn->prepare($sql);
         $stmt->bindValue("searchDescription", $searchDescription, PDO::PARAM_STR);
-        //$stmt->bindValue("done", true, PDO::PARAM_BOOL);
+        $stmt->bindValue("done", true, PDO::PARAM_BOOL);
         $stmt->execute();
 
         $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
