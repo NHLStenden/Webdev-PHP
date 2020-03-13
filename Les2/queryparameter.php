@@ -1,3 +1,4 @@
+<!-- queryparameter.php -->
 <?php
 $count = (int)($_GET["count"] ?? 0);
 

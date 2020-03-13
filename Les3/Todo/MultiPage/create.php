@@ -15,7 +15,7 @@ if(isset($_POST["ACTION"]) && $_POST["ACTION"] === "AddTodo")
     if(!empty($_POST["description"])) {
         $description = filter_var($_POST["description"],FILTER_SANITIZE_STRING);
         if($description === false) {
-            array_push($errors, "incorrect description");
+            $errors[] = "incorrect description";
             $description = $_POST["description"];
         }
     } else {

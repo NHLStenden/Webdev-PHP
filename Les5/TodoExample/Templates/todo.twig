@@ -116,6 +116,9 @@
                             {
                                 var template = $.templates("#todoItemTmpl");
 
+                                //var addedTodoItem = {...data, todoId: result};
+                                data.todoId = result;
+
                                 var htmlOutput = template.render(data);
 
                                 $("#todoList").append(htmlOutput);
@@ -130,16 +133,16 @@
                             else if(data.ACTION === "UpdateTodo")
                             {
                                 if(result === true) {
-                                    debugger;
                                     var templateUpdateTodo = $.templates("#todoItemTmpl");
-
-                                    debugger;
-
                                     var htmlOutputUpdateTodo = templateUpdateTodo.render(data);
-
                                     $(`.todoItemCommandForm input[value=${data.todoId}]:first`).parents(".todoItem").replaceWith(htmlOutputUpdateTodo);
                                 }
                             }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(JSON.parse(xhr.responseText).message);
+                            alert(xhr.status);
+                            alert(thrownError);
                         }
                     });
                 }
