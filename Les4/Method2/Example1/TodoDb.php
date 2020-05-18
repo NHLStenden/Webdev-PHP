@@ -19,8 +19,7 @@ class TodoDb
      */
     private function getConnectionString()
     {
-        $dns = "mysql:host=$this->host;dbname=$this->databaseName";
-        return $dns;
+        return "mysql:host=$this->host;dbname=$this->databaseName";
     }
 
     /**
