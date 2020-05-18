@@ -26,7 +26,7 @@ class TodoDb
     /**
      * @return PDO
      */
-    private function createConenction()
+    private function createConnection()
     {
         $conn = new PDO($this->getConnectionString(), $this->username, $this->password);
 
@@ -43,7 +43,7 @@ class TodoDb
     {
         $sql = "SELECT todoId, description, done FROM Todos ORDER BY TodoId";
 
-        $conn = $instance->createConenction();
+        $conn = $instance->createConnection();
         $stmtSelect = $conn->prepare($sql);
         $stmtSelect->execute();
 
@@ -61,7 +61,7 @@ class TodoDb
     public function getTodo(int $todoId) : ?Todo {
         $sqlEdit = "SELECT todoId, description, done FROM Todos WHERE TodoId = :todoId";
 
-        $conn = $this->createConenction();
+        $conn = $this->createConnection();
         $stmtEdit = $conn->prepare($sqlEdit);
         $stmtEdit->bindValue(":todoId", $todoId, PDO::PARAM_INT);
 
@@ -87,7 +87,7 @@ class TodoDb
     {
         $sqlDelete = "DELETE FROM Todos WHERE TodoId = :todoId";
 
-        $conn = $this->createConenction();
+        $conn = $this->createConnection();
         $stmtDelete = $conn->prepare($sqlDelete);
         $stmtDelete->bindValue(":todoId", $todoId, PDO::PARAM_INT);
 
@@ -104,7 +104,7 @@ class TodoDb
     {
         $sqlInsert = "INSERT INTO Todos (Description, Done) VALUES (:description, :done)";
 
-        $conn = $this->createConenction();
+        $conn = $this->createConnection();
         $stmtInsert = $conn->prepare($sqlInsert);
         $stmtInsert->bindValue(":description", $description, PDO::PARAM_STR);
         $stmtInsert->bindValue(":done", $done, PDO::PARAM_BOOL);
@@ -121,7 +121,7 @@ class TodoDb
     public function updateTodo(Todo $todo) {
         $sqlEdit = "UPDATE Todos SET Description = :description, Done = :done WHERE TodoId = :todoId";
 
-        $stmtEdit = $conn = $this->createConenction()->prepare($sqlEdit);
+        $stmtEdit = $conn = $this->createConnection()->prepare($sqlEdit);
 
         $stmtEdit->bindValue(":description", $todo->description, PDO::PARAM_STR);
         $stmtEdit->bindValue(":done", $todo->done, PDO::PARAM_BOOL);
