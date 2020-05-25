@@ -1,10 +1,6 @@
 <?php
 include "TodoDb.php";
 
-function validate($str) {
-    return trim(htmlspecialchars($str));
-}
-
 function is_ajax() {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 }
@@ -39,7 +35,7 @@ try {
 
             if ($action === "DeleteTodo")
             {
-                $todoId = validate($input->todoId);
+                $todoId = $input->todoId;
 
                 if(isset($todoId) &&
                     filter_var($todoId, FILTER_VALIDATE_INT) !== false )
@@ -54,7 +50,7 @@ try {
             else if ($action === "AddTodo")
             {
                 $description = $input->description;
-                $done = validate($input->done ?? false);
+                $done = $input->done ?? false;
 
                 if (isset($description) && !empty($description))
                 {
@@ -87,7 +83,7 @@ try {
             }
             else if ($action === "EditTodo")
             {
-                $todoId = validate($input->todoId);
+                $todoId = $input->todoId;
 
                 if (isset($todoId) &&
                     filter_var($todoId, FILTER_VALIDATE_INT) !== false)
