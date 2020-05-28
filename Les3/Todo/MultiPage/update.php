@@ -29,18 +29,18 @@ if(isset($_POST["ACTION"]) && $_POST["ACTION"] === "EditTodo")
     if(!empty($_POST["description"])) {
         $description = filter_var($_POST["description"],FILTER_SANITIZE_STRING);
         if($description === false) {
-            array_push($errors, "incorrect description");
+            $errors["description"] = "incorrect description";
             $description = $_POST["description"];
         }
     } else {
-        array_push($errors, "description can not be empty");
+        $errors["description"] = "description can not be empty";
     }
 
     //filter done
     if(!empty($_POST["done"])) {
         $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
         if($done === false) {
-            array_push($errors, "incorrect done");
+            $errors["done"] = "incorrect done";
             $done = $_POST["done"];
         }
     }
@@ -99,6 +99,14 @@ if(isset($_POST["ACTION"]) && $_POST["ACTION"] === "EditTodo")
         }
     }
 }
+
+function displayError($inputName) {
+    global $errors; //liever geen globals gebruiken! Hier kan het niet anders :-(
+
+    if(isset($errors[$inputName])) {
+        return $errors[$inputName];
+    }
+}
 ?>
 
 <h1>Create Todo Item</h1>
@@ -106,7 +114,9 @@ if(isset($_POST["ACTION"]) && $_POST["ACTION"] === "EditTodo")
     <input type="hidden" name="ACTION" value="EditTodo">
     <input type="hidden" name="todoId" value="<?= $todoId ?>">
 
+    <?= displayError("description") ?>
     <input name="description" type="text" value="<?= $description ?>">
+    <?= displayError("done") ?>
     <input name="done" type="checkbox" <? if($done) { echo "checked"; } ?> >
     <button type="submit">Add</button>
 </form>

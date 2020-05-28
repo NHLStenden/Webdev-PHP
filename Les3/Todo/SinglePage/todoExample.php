@@ -28,19 +28,19 @@ try {
                 if(!empty($_POST["description"])) {
                     $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
                     if($description === false) {
-                        $errors[] = "Description has a problem";
+                        $errors["description"] = "Description has a problem";
                         $description = "";
                     }
                 } else {
                     //add item to array $errors
-                    $errors[] = "Description is empty";
+                    $errors["description"] = "Description is empty";
                 }
 
                 if(!empty($_POST["done"])) {
                     $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
                     if($done === false) {
                         //add item to array $errors
-                        $errors[] = "Incorrect done";
+                        $errors["done"] = "Incorrect done";
                         $done = false;
                     }
                 }
@@ -66,7 +66,7 @@ try {
 
                     if($todoId === false) {
                         //add item to array $errors
-                        $errors[] = "invalid todoId";
+                        $errors["todoId"] = "Invalid todoId";
                     } else {
                         $sqlDelete = "DELETE FROM Todos WHERE TodoId = :todoId";
 
@@ -83,7 +83,7 @@ try {
                     }
                 } else {
                     //add item to array $errors
-                    $errors[] = "todoId is empty";
+                    $errors["todoId"] = "todoId is empty";
                 }
             } else if ($action === "EditTodo") {
                 if (isset($_POST["todoId"])) {
@@ -91,7 +91,7 @@ try {
                     $todoId = filter_var($_POST['TodoId'], FILTER_VALIDATE_INT);
                     if($todoId === false) {
                         //add item to array $errors
-                        $errors[] = "todoId is has invalid";
+                        $errors["todoId"] = "todoId is has invalid";
                     } else {
                         $sqlEdit = "SELECT TodoId, Description, Done FROM Todos WHERE TodoId = :todoId";
 
@@ -110,31 +110,31 @@ try {
                         } //else is error thrown (PDOException)
                     }
                 } else {
-                    $errors[] = "todoId is empty";
+                    $errors["todoId"] = "todoId is empty";
                 }
             } else if ($action === "UpdateTodo") {
                 if(!empty($_POST["todoId"])) {
                     $todoId = filter_var($_POST['TodoId'], "TodoId", FILTER_VALIDATE_INT);
                     if($todoId === false) {
                         //add item to array $errors
-                        $errors[] = "todoId is has invalid";
+                        $errors["todoId"] = "todoId is has invalid";
                     }
                 }
 
                 if(!empty($_POST["description"])) {
                     $description = filter_var($_POST["description"], FILTER_SANITIZE_STRING);
                     if($description === false) {
-                        $errors[] = "Description has a problem";
+                        $errors["description"] = "Description has a problem";
                         $description = "";
                     }
                 } else {
-                    $errors[] = "Description is empty";
+                    $errors["description"] = "Description is empty";
                 }
 
                 if(!empty($_POST["done"])) {
                     $done = filter_var($_POST["done"], FILTER_VALIDATE_BOOLEAN);
                     if($done === false) {
-                        $errors[] = "incorrect done";
+                        $errors["done"] = "incorrect done";
                         $done = false;
                     }
                 }
@@ -163,7 +163,7 @@ try {
             $todoId = filter_var($_GET['todoId'], FILTER_VALIDATE_INT);
             if($todoId === false) {
                 //add item to array $errors
-                $errors[] = "todoId is has invalid";
+                $errors["todoId"] = "todoId is has invalid";
             } else {
                 $sqlEdit = "SELECT TodoId, Description, Done FROM Todos WHERE TodoId = :todoId";
 
@@ -202,11 +202,12 @@ try {
 ?>
 
 <?
+    //displays all errors
     if(count($errors) > 0) {
         echo "<h1>Errors:</h1>";
         echo "<ul>";
-        foreach ($errors as $error) {
-            echo "<li>$error</li>";
+        foreach ($errors as $errorKey => $error) {
+            echo "<li>$errorKey -- $error</li>";
         }
         echo "</ul>";
     }
@@ -238,8 +239,9 @@ try {
         <input type="hidden" name="ACTION" value="UpdateTodo">
     <? } ?>
 
-
+    <?= displayError("description") ?>
     <input name="description" type="text" <?= $rowToEdit != null ? "value=${rowToEdit['Description']}" : "" ?> >
+    <?= displayError("done") ?>
     <input name="done" type="checkbox" <?= $rowToEdit != null && $rowToEdit["Done"] ? "checked" : "" ?> >
     <button type="submit">
         <?= $rowToEdit === null ? "Add" : "Update" ?>

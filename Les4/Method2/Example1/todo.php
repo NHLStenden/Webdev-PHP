@@ -47,7 +47,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST")
                     if($description !== false) {
                         $todo = new Todo();
                         $todo->todoId = (int)$_POST["todoId"];
-                        $todo->description = validate($_POST["description"]);
+                        $todo->description = $description;
                         $todo->done = isset($_POST["done"]);
 
                         $todoDb->updateTodo($todo);

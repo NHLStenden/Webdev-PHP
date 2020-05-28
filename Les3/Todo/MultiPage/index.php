@@ -35,6 +35,14 @@ try
         $conn = null;
     }
 }
+
+function displayError($inputName) {
+    global $errors; //liever geen globals gebruiken! Hier kan het niet anders :-(
+
+    if(isset($errors[$inputName])) {
+        return $errors[$inputName];
+    }
+}
 ?>
 
 <h1>Num of Todos method1 (total): <?= $totalNumRecords ?></h1>
@@ -59,7 +67,6 @@ try
             <a href="delete.php?todoId=<?= $row['TodoId'] ?>">Delete</a>
             <hr>
         </li>
-
     <? } ?>
 </ul>
 

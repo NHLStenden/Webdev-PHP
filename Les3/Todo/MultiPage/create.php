@@ -77,7 +77,7 @@ function displayError($inputName) {
     <input type="hidden" name="ACTION" value="AddTodo">
 
     <?= displayError("description") ?>
-    <input name="description" type="text" value="<?= $description ?>"><br/>
+    <input name="description" type="text" value="<?= $description ?>">
 
     <?= displayError("done") ?>
     <input name="done" type="checkbox" value="<?= $done ?>" ><br/>
